@@ -1,0 +1,94 @@
+<div class="row" ng-init="getLoggedUser()">
+    <div class="col-md-4" ng-controller="HomeController">
+
+      <ul class="nav nav-tabs">
+          <li><button ng-click="getAllUsersExcept()" type="button" class="btn btn-default">All Users</button></li>
+          <li><button ng-click="findFollowings()" type="button" class="btn btn-default">Users you follow</button></li>
+      </ul>
+
+            <!-- <div ng-repeat='user in users'>
+                <div class="panel panel-default">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="panel-body">
+                                <ul id="allUsersList">
+                                    <li><h4>{{user.name}}</h4></li>
+                                    <li># of Posts: {{user.messages.length}}</li>
+                                    <li><a ng-show="!user.isFollowed" ng-click="addRelationship(user._id)">Follow</a></li>
+                                    <li><a ng-show="user.isFollowed" ng-click="removeRelationship(user._id)">Unfollow</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <image id="userImage3" ng-src="{{user.image}}" class="img-responsive">
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+
+
+        <table class="table table-hover" id="messageBoardUsers">
+          <thead>
+          </thead>
+          <tbody>
+            <tr ng-repeat='user in users'>
+              <td>{{user.name}}</td>
+              <td><image id="userImage3" ng-src="{{user.image}}" class="img-responsive"></td>
+              <td><a ng-show="!user.isFollowed" ng-click="addRelationship(user._id)">Follow</a></td>
+              <td><a ng-show="user.isFollowed" ng-click="removeRelationship(user._id)">Unfollow</a></td>
+            </tr>
+          </tbody>
+        </table>
+
+
+    </div>
+    <!-- End Left Panel -->
+    <div class="col-md-8" ng-init="getUserMessages()">
+
+        <div class="panel panel-default">
+            <div id="messagePostForm" class="panel-body">
+                <form ng-submit="postMessage()" name="messageForm" novalidate>
+                    <textarea ng-model="message" name="message" rows="8" cols="54" style="overflow:auto;resize:none" required></textarea><br>
+                    <input ng-disabled="messageForm.$invalid" class="btn btn-primary" type="submit" value="Post">
+                </form>
+            </div>
+        </div>
+
+        <ul class="nav nav-tabs">
+            <li><button ng-click="getUserMessages()" type="button" class="btn btn-default">Your Messages</button></li>
+            <li><button ng-click="getAllMessages()" type="button" class="btn btn-default">All Messages</button></li>
+        </ul>
+
+        <div ng-repeat="message in messages | orderBy : createdAt : true">
+            <div id="messagePanel" class="panel panel-default">
+                <image id="userImage2" ng-src="{{message.userImage}}" class="img-responsive">
+                    <div class="panel-heading">
+                        <p id="messageEmail">{{message.userEmail}}</p>
+                        <p id="postedDate">{{message.createdAt | date: 'medium'}}</p>
+                    </div>
+                    <div class="panel-body">
+                        <div class="well">
+                            <p>{{message.content}}</p>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <a ng-show="checkUserForDelete(message.userId)" ng-click="deleteMessage(message._id)">Delete Post</a>
+                        <a id="commentsShow" ng-click="showComments()">Show Comments</a>
+                    </div>
+            </div>
+
+            <div ng-show="comments" id="commentPostForm" class="panel panel-default">
+                <div class="panel-body">
+                    <form ng-submit="postComment(message._id)" name="commentForm" novalidate>
+                        <textarea ng-model="comment" name="comment" rows="8" cols="54" style="overflow:auto;resize:none" required></textarea><br>
+                        <input ng-disabled="commentForm.$invalid" class="btn btn-primary" type="submit" value="Post">
+                    </form>
+                </div>
+            </div>
+
+        </div>
+        <!-- End Message Repeat -->
+    </div>
+    <!-- End col-md-8 -->
+</div>
+<!-- End right panel -->

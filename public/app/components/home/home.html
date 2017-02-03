@@ -1,0 +1,67 @@
+<div class="row">
+    <div class="col-md-8">
+        <h2 class='page-header'> Register</h2>
+        <style>
+            input.ng-touched.ng-invalid.ng-dirty  {
+              border: 3px solid red;
+
+            }
+
+            input.ng-touched.ng-valid.ng-dirty {
+              border: 3px solid green;
+              border-radius: 5;
+            }
+        </style>
+        <form name="registerForm" ng-model="user" ng-submit="register()" novalidate="">
+            <!-- <div class="alert alert-danger "></div> -->
+
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" class="form-control" ng-class="{red: registerForm.name.$invalid}" placeholder="Name" name="name" ng-model="user.name" required>
+            </div>
+            <div style="color:red" ng-messages="registerForm.name.$error" ng-if="registerForm.name.$dirty">
+                <div ng-message="required">This field is required</div>
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" class="form-control" placeholder="Email" name="email" ng-model="user.email" required>
+            </div>
+            <div style="color:red" ng-messages="registerForm.email.$error" ng-if="registerForm.email.$dirty">
+                <div ng-message="required">This field is required</div>
+                <div ng-message="email">Your email address is invalid</div>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" class="form-control" placeholder="Password" name="password" ng-model="user.password" required>
+            </div>
+            <div style="color:red" ng-messages="registerForm.password.$error" ng-if="registerForm.password.$dirty">
+                <div ng-message="required">This field is required</div>
+            </div>
+
+            <div class="form-group">
+                <label>Confirm Password</label>
+                <input type="password" class="form-control" placeholder="Password" name="password2" ng-model="user.password2" ng-pattern="{{user.password}}" required>
+            </div>
+            <div style="color:red" ng-messages="registerForm.password2.$error" ng-if="registerForm.password2.$dirty">
+                <div ng-message="required">This field is required</div>
+                <div ng-message="pattern">The passwords do not match.</div>
+            </div>
+
+            <input ng-disabled="registerForm.$invalid" type="submit" class="btn btn-primary" name="login" value="Register">
+        </form>
+        <div class="errors" ng-repeat="error in errors">
+            <div id="errorMessage" ng-if="error" class="alert alert-danger ">{{error.message}}</div>
+        </div>
+
+
+        <div ng-init="getAllUsers()">
+            <ul ng-repeat="user in users">
+                <li>{{user}}</li>
+                <li><a ng-click="deleteUser(user._id)">Delete</a></li>
+            </ul>
+        </div>
+    </div>
+
+</div>

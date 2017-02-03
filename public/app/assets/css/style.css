@@ -1,0 +1,128 @@
+/* Global */
+
+body {
+    width: 1000px;
+    height: auto;
+    margin: 100px auto;
+}
+
+.navbar {
+    padding: 5px;
+}
+
+h1 {
+    text-align: center;
+}
+
+h3 {
+  display: inline-block;
+}
+
+
+/* Message Board */
+
+#postedDate {
+    float: right;
+    display: inline-block;
+    vertical-align: top;
+}
+
+#commentsShow {
+  float: right;
+  display: inline-block;
+  vertical-align: top;
+}
+
+#messageEmail {
+    float: left;
+    display: inline-block;
+    vertical-align: baseline;
+}
+
+#detailsValue {
+  float: right;
+  display: inline-block;
+
+}
+
+ul li{
+    padding: 5px;
+}
+
+#loginError {
+  height: auto;
+  width: auto;
+}
+
+#nav {
+    background-color: black;
+}
+
+input.ng-dirty.ng-valid {
+    border-color: green;
+}
+
+input.ng-dirty.ng-invalid {
+    border-color: red;
+}
+
+#errorMessage {
+  margin: 10px;
+}
+
+#updateName {
+  display: inline;
+}
+
+.input-group-btn {
+  display: inline;
+}
+
+#userImage {
+  border-radius: 100px;
+  border: 2px: solid white;
+  width: 100px;
+  height: 100px;
+  float: left;
+  margin: 5px;
+
+}
+
+#userImage2 {
+  border-radius: 100px;
+  border: 1px solid white;
+  width: 70px;
+  height: 70px;
+  float: left;
+  margin: 5px;
+  display: inline-block;
+
+}
+
+#userImage3 {
+  border-radius: 100px;
+  border: 1px solid white;
+  width: 70px;
+  height: 70px;
+  margin: 5px;
+  vertical-align: middle;
+  float: right;
+
+
+}
+
+#allUsersList {
+  list-style-type: none;
+}
+
+#commentPostForm {
+  margin: 10px 10px 0 200px;
+}
+
+#messagePanel {
+  margin: 10px;
+}
+
+#messageBoardUsers {
+  align-content: center;
+}
