@@ -16,8 +16,10 @@ module.exports.register = function(req, res) {
 };
 
 module.exports.login = function(req, res) {
+  console.log("Started Login function in server"+req.body);
     User.find({email: req.body.email})
       .then(function(user) {
+        console.log(user);
         var hashPassword = user[0].password;
         var testPassword = req.body.password;
         User.comparePassword(testPassword, hashPassword, function(err, isMatch) {
@@ -43,13 +45,16 @@ module.exports.getAllUsers = function(req, res) {
 };
 
 module.exports.deleteUser = function(req, res) {
-  // Delete messages
+  // Delete user's messages
   User.findById({_id: req.params.id})
       .then(function(user) {
             var messages = user.messages
           messages.forEach(function(message) {
-            Message.findByIdAndRemove(message);
+            Message.findByIdAndRemove(message).then(function(response) {
+              console.log('Successfully deleted messages from user' + response);
+            });
           });
+          // Delete User
           User.remove({_id: req.params.id})
               .then(function() {
                   res.json(true);
@@ -60,9 +65,25 @@ module.exports.deleteUser = function(req, res) {
 };
 
 module.exports.findByEmail = function(req, res) {
+    console.log(req.params.email);
     User.find({email: req.params.email})
         .then(function(user) {
-            res.status(200).json(user);
+          console.log(user);
+        if (user.length > 0) {
+          var retUser = {
+            name: user[0].name,
+            email: user[0].email,
+            birthday: user[0].birthday,
+            following: user[0].following,
+            followers: user[0].followers,
+            messages: user[0].messages,
+            image: user[0].image,
+            id: user[0]._id
+          };
+          res.status(200).json(retUser);
+        } else {
+          res.status(200).json({message: "No user found"});
+        }
         }).catch(function(err) {
             res.status(500).json(err)
         })
@@ -71,6 +92,20 @@ module.exports.findByEmail = function(req, res) {
 module.exports.findById = function(req, res) {
   User.findOne({_id: req.params.id})
       .then(function(user) {
+          // console.log(user);
+          // var retUser = {
+          //   name: user.name,
+          //   email: user.email,
+          //   birthday: user.birthday,
+          //   following: user.following,
+          //   followers: user.followers,
+          //   messages: user.messages,
+          //   image: user.image,
+          //   id: user._id
+          // };
+
+          // console.log(user);
+          user.password = "";
           res.status(200).json(user);
       }).catch(function(err) {
           res.status(500).json(err)
@@ -117,16 +152,20 @@ module.exports.editPhoto = function(req, res) {
 
 module.exports.addRelationship = function(req, res) {
 
-    var userId = req.body.loggedUser;
-    var userToFollow = req.body.userToFollow;
+    var userId = "589f98fa82eb9e0aee549ecb";
+    var userToFollowId = req.body.userToFollowId;
+    // console.log(userId);
+    // console.log(userToFollowId);
 
-    User.findByIdAndUpdate(userId, {$push: {"following": userToFollow}})
+
+    User.findByIdAndUpdate(userId, {$push: {"following": userToFollowId}})
       .then(function(user) {
-        console.log(user);
-          User.findByIdAndUpdate(userToFollow, {$push: {"followers": userId}})
+        // console.log(user);
+          User.findByIdAndUpdate(userToFollowId, {$push: {"followers": userId}})
           .then(function(user) {
-            console.log(user);
-            console.log('Success');
+            res.sendStatus(204);
+            // console.log(user);
+            // console.log('Success');
           })
       }).catch(function(err) {
         console.log(err);

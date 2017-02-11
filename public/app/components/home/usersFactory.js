@@ -12,7 +12,7 @@ angular.module('mainApp')
         factory.login = function(user, callback) {
             $http.get('/users/findByEmail/' + user.email, user.email)
                 .then(function(foundEmail) {
-                    if (foundEmail.data.length > 0) {
+                    if (foundEmail.data) {
                         $http.post('/users/login', user)
                             .then(function(response) {
                                 callback(response);
@@ -42,7 +42,11 @@ angular.module('mainApp')
         factory.findByEmail = function(email, callback) {
             $http.get('/users/findByEmail/' + email, email)
                 .then(function(data) {
+                  if (data) {
                     callback(data);
+                  } else {
+                    callback({message: "No email found"})
+                  };
                 });
         };
 

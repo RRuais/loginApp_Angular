@@ -37,11 +37,6 @@ angular.module('mainApp')
                     'Content-type': 'application/json;charset=utf-8'
                 }
             })
-            // $http.delete('/messages/delete/' + messageId, {
-            //     params: {
-            //         userId: userId
-            //     }
-            // })
         };
 
         factory.getUserMessages = function(id, callback) {

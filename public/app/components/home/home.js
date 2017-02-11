@@ -17,12 +17,13 @@
                 };
                 var newUser = $scope.user;
                 uf.findByEmail(newUser.email, function(response) {
-                    if (response.data.length > 0) {
-                      $scope.errors.push({message: "Email already exists"});
-                    } else {
+                  console.log(response);
+                    if (response.data.message) {
                       uf.register(newUser, function(user) {
                         $location.url('success');
                       });
+                    } else {
+                      $scope.errors.push({message: "Email already exists"});
                     }
                 });
             }; //End Register Function
@@ -76,7 +77,7 @@
               if ($cookies.get('loggedUser')) {
                 var user = JSON.parse($cookies.get('loggedUser'));
                 uf.findByEmail(user.email, function(user) {
-                    $scope.userDetails = user.data[0];
+                    $scope.userDetails = user.data;
                 });
               }
             };
@@ -212,8 +213,7 @@
             function checkUserFollowing(userId, callback) {
               var user = getUser();
               uf.findByEmail(user.email, function(user) {
-                  console.log(user.data[0].following);
-                  user.data[0].following.forEach(function(id) {
+                  user.data.following.forEach(function(id) {
                       if (id === userId) {
                         callback(true);
                       } else {

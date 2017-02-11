@@ -12,7 +12,7 @@ router.get('/findByEmail/:email', usersController.findByEmail);
 router.get('/findById/:id', usersController.findById);
 router.post('/update', usersController.update);
 router.post('/profile/editPhoto', multipartMiddleware, usersController.editPhoto);
-router.post('/addRelationship', usersController.addRelationship);
+router.patch('/addRelationship', usersController.addRelationship);
 router.post('/removeRelationship', usersController.removeRelationship);
 
 

@@ -8,9 +8,7 @@ module.exports.postMessage = function(req, res) {
             var userId = message.userId;
             var messageId = message._id;
             User.findByIdAndUpdate(userId, {
-                $push: {
-                    "messages": messageId
-                }
+                $push: {"messages": messageId}
             }, function(err, data) {
                 if (err) {
                     res.json(err);
