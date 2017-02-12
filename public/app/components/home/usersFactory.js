@@ -1,16 +1,26 @@
+const BASE_PATH = "/api/users";
+
 angular.module('mainApp')
     .factory('UsersFactory', ['$http', '$location', function($http, $location) {
         var factory = {}
 
         factory.register = function(newUser, callback) {
-            $http.post('/users/register', newUser)
+            $http.post(`${BASE_PATH}`, newUser)
                 .then(function(user) {
+
                     callback(user);
-                });
+                })
+                .catch((function(err) {
+                  console.error(err);
+                  //display error somehow
+                  let errorMessage = err.data.message;
+                  //do something with that
+                  callback(null, errorMessage);
+                }))
         };
 
         factory.login = function(user, callback) {
-            $http.get('/users/findByEmail/' + user.email, user.email)
+            $http.get('/users/findByEmail/' + user.email)
                 .then(function(foundEmail) {
                     if (foundEmail.data) {
                         $http.post('/users/login', user)
@@ -26,7 +36,7 @@ angular.module('mainApp')
         };
 
         factory.getAllUsers = function(callback) {
-            $http.get('/users/getAllUsers')
+            $http.get(BASE_PATH)
                 .then(function(users) {
                     callback(users);
                 }).catch(function(err) {

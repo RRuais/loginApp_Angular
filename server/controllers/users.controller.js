@@ -6,6 +6,16 @@ var path = require('path');
 module.exports.register = function(req, res) {
     var newUser = new User(req.body);
 
+    //find by email in order to avoid dupe
+    User.find({email: newUser.email})
+      .then(function(users) {
+        let user = users[0];
+
+        if(user){
+          res.status(409).json({message: "Email already exists"})
+        }
+      });
+
     User.createUser(newUser, function(err, user) {
         if (err) {
             res.status(500).json(err)
@@ -174,16 +184,17 @@ module.exports.addRelationship = function(req, res) {
 
 module.exports.removeRelationship = function(req, res) {
 
-    var userId = req.body.loggedUser;
-    var userToFollow = req.body.userToFollow;
+    // var userId = req.body.loggedUser;
+    var userId = "589f98fa82eb9e0aee549ecb";
+    // var userToFollow = req.body.userToFollow;
+    var followId = req.params.followId;
 
-    User.findByIdAndUpdate(userId, {$pull: {"following": userToFollow}})
+    User.findByIdAndUpdate(userId, {$pull: {"following": followId}})
       .then(function(user) {
-        console.log(user);
-          User.findByIdAndUpdate(userToFollow, {$pull: {"followers": userId}})
+
+          User.findByIdAndUpdate(followId, {$pull: {"followers": userId}})
           .then(function(user) {
-            console.log(user);
-            console.log('Success');
+          res.sendStatus(204);
           })
       }).catch(function(err) {
         console.log(err);

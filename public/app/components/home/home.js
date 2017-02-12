@@ -16,16 +16,16 @@
                     $scope.errors.push({message: "Passwords need to match!"});
                 };
                 var newUser = $scope.user;
-                uf.findByEmail(newUser.email, function(response) {
-                  console.log(response);
-                    if (response.data.message) {
-                      uf.register(newUser, function(user) {
-                        $location.url('success');
-                      });
-                    } else {
-                      $scope.errors.push({message: "Email already exists"});
-                    }
+                uf.register(newUser, function(user, errMsg) {
+                  console.error(`hae error ${errMsg}`);
+                  if(errMsg) {
+                    $scope.errors.push(errMsg)
+                  }
+                  else {
+                    $location.url('success');
+                  }
                 });
+
             }; //End Register Function
 
             $scope.login = function(req, res) {

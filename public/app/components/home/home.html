@@ -52,7 +52,7 @@
             <input ng-disabled="registerForm.$invalid" type="submit" class="btn btn-primary" name="login" value="Register">
         </form>
         <div class="errors" ng-repeat="error in errors">
-            <div id="errorMessage" ng-if="error" class="alert alert-danger ">{{error.message}}</div>
+            <div id="errorMessage" ng-if="error" class="alert alert-danger ">{{error}}</div>
         </div>
 
 

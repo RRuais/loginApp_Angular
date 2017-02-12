@@ -29,7 +29,7 @@ app.use(express.static(path.join(__dirname, 'bower_components')));
 app.use('/uploads', express.static(__dirname + "/uploads"));
 
 app.use('/', routes);
-app.use('/users', users);
+app.use('/api/users', users);
 app.use('/messages', messages)
 
 // Set Port
