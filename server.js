@@ -4,6 +4,11 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongo = require('mongodb');
 var mongoose = require('mongoose');
+var app = express();
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 
 mongoose.connect('mongodb://localhost/loginapp');
@@ -14,14 +19,11 @@ var users = require('./server/routes/users');
 var messages = require('./server/routes/messages');
 var comments = require('./server/routes/comments');
 
-
-var app = express();
-
-
-// BodyParser Middleware
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
+// app.use(function (req, res, next) {
+// 	let headers = JSON.stringify(req.headers);
+// 	console.log(`headers: ${headers}`);
+// 	next();
+// });
 
 // Set Static Folder
 app.use(express.static(path.join(__dirname, 'public')));
@@ -30,7 +32,9 @@ app.use('/uploads', express.static(__dirname + "/uploads"));
 
 app.use('/', routes);
 app.use('/api/users', users);
-app.use('/messages', messages)
+app.use('/api/messages', messages)
+app.use('/api/comments', comments)
+
 
 // Set Port
 app.set('port', (process.env.PORT || 8000));

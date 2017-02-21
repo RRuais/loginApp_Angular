@@ -1,52 +1,83 @@
 var User = require('../models/user.js');
 var Message = require('../models/messages.js')
+var Comment = require('../models/comments.js')
 var fs = require('fs-extra');
 var path = require('path');
+var bcrypt = require('bcryptjs');
+var Q = require('q');
+var mongoose = require('mongoose')
+
+mongoose.Promise = global.Promise;
+
+function _findByEmail(email) {
+  return User.findOne({email: email});
+}
+
+function _generateAuthToken(user) {
+  let d = Q.defer();
+  bcrypt.genSalt(10, function(err, salt) {
+      bcrypt.hash(user.name, salt, function(err, hash) {
+        if(err) {
+          d.reject(err);
+          return;
+        }
+        user.authToken = hash;
+        user.save()
+        .then(function(user) {
+          d.resolve(user);
+        })
+      });
+  });
+  return d.promise;
+};
 
 module.exports.register = function(req, res) {
     var newUser = new User(req.body);
-
-    //find by email in order to avoid dupe
-    User.find({email: newUser.email})
-      .then(function(users) {
-        let user = users[0];
-
+    _findByEmail(newUser.email)
+      .then(function(user) {
         if(user){
           res.status(409).json({message: "Email already exists"})
-        }
+        };
       });
-
     User.createUser(newUser, function(err, user) {
         if (err) {
             res.status(500).json(err)
         } else {
-            res.json(user);
+            res.status(201).json(user);
         };
     });
 };
 
 module.exports.login = function(req, res) {
-  console.log("Started Login function in server"+req.body);
-    User.find({email: req.body.email})
+    _findByEmail(req.body.email)
       .then(function(user) {
-        console.log(user);
-        var hashPassword = user[0].password;
-        var testPassword = req.body.password;
-        User.comparePassword(testPassword, hashPassword, function(err, isMatch) {
+        if (user) {
+          var hashPassword = user.password;
+          var testPassword = req.body.password;
+          User.comparePassword(testPassword, hashPassword, function(err, isMatch) {
             if (isMatch) {
-                console.log('Success');
-                res.status(200).json(user)
+              _generateAuthToken(user)
+              .then(function (user){
+                res.status(200).json({email: user.email, token: user.authToken, id: user._id});
+              })
             } else {
-                console.log("Failure");
-                res.json({message: "Failure"});
+              console.log("Compare password failed");
+              res.status(500).json({message: "Email or password incorrect"});
             }
-        });
-      })
+          });// End Compare Password
+        } else {
+          console.log("Could not find user");
+          res.status(500).json({message: "Email or password incorrect"});
+        };
+      });
 };
 
 module.exports.getAllUsers = function(req, res) {
     User.find({})
         .then(function(users) {
+            users.forEach(function(user) {
+              user.password = "";
+            })
             res.status(200).json(users);
 
         }).catch(function(err) {
@@ -55,66 +86,35 @@ module.exports.getAllUsers = function(req, res) {
 };
 
 module.exports.deleteUser = function(req, res) {
-  // Delete user's messages
-  User.findById({_id: req.params.id})
-      .then(function(user) {
-            var messages = user.messages
-          messages.forEach(function(message) {
-            Message.findByIdAndRemove(message).then(function(response) {
-              console.log('Successfully deleted messages from user' + response);
-            });
-          });
-          // Delete User
-          User.remove({_id: req.params.id})
-              .then(function() {
-                  res.json(true);
-              })
-      }).catch(function(err) {
-          res.status(500).json(err)
-      })
-};
-
-module.exports.findByEmail = function(req, res) {
-    console.log(req.params.email);
-    User.find({email: req.params.email})
-        .then(function(user) {
-          console.log(user);
-        if (user.length > 0) {
-          var retUser = {
-            name: user[0].name,
-            email: user[0].email,
-            birthday: user[0].birthday,
-            following: user[0].following,
-            followers: user[0].followers,
-            messages: user[0].messages,
-            image: user[0].image,
-            id: user[0]._id
-          };
-          res.status(200).json(retUser);
-        } else {
-          res.status(200).json({message: "No user found"});
-        }
+    User.remove({_id: req.params.id})
+        .then(function(data) {
+            Message.remove({userId: req.params.id})
+                .then(function(data) {
+                    Comment.remove({userId: req.params.id})
+                        .then(function(data) {
+                            res.json(true);
+                        })
+                })
         }).catch(function(err) {
             res.status(500).json(err)
         })
 };
 
+
+module.exports.findByEmail = function(req, res) {
+    _findByEmail(req.params.email).then(function(user) {
+      if (user) {
+        user.password = ''
+        res.status(200).json(user);
+      } else {
+        res.status(200).json({message: "No user found"});
+      };
+    });
+};
+
 module.exports.findById = function(req, res) {
   User.findOne({_id: req.params.id})
       .then(function(user) {
-          // console.log(user);
-          // var retUser = {
-          //   name: user.name,
-          //   email: user.email,
-          //   birthday: user.birthday,
-          //   following: user.following,
-          //   followers: user.followers,
-          //   messages: user.messages,
-          //   image: user.image,
-          //   id: user._id
-          // };
-
-          // console.log(user);
           user.password = "";
           res.status(200).json(user);
       }).catch(function(err) {
@@ -123,11 +123,12 @@ module.exports.findById = function(req, res) {
 };
 
 module.exports.update = function(req, res) {
-  User.findOneAndUpdate({email: req.body.email}, req.body, {returnOriginal: false}, function(err, data) {
+  User.findOneAndUpdate({email: req.body.email}, req.body, {returnOriginal: false}, function(err, user) {
     if (err) {
-      res.json(err);
+      res.status(500).json(err);
     } else {
-      res.json(data);
+      user.password = "";
+      res.status(200).json(user);
     }
   });
 };
@@ -161,21 +162,13 @@ module.exports.editPhoto = function(req, res) {
 };
 
 module.exports.addRelationship = function(req, res) {
-
-    var userId = "589f98fa82eb9e0aee549ecb";
-    var userToFollowId = req.body.userToFollowId;
-    // console.log(userId);
-    // console.log(userToFollowId);
-
-
+    var userId = req.body.loggedUser;
+    var userToFollowId = req.body.userToFollow;
     User.findByIdAndUpdate(userId, {$push: {"following": userToFollowId}})
       .then(function(user) {
-        // console.log(user);
           User.findByIdAndUpdate(userToFollowId, {$push: {"followers": userId}})
           .then(function(user) {
             res.sendStatus(204);
-            // console.log(user);
-            // console.log('Success');
           })
       }).catch(function(err) {
         console.log(err);
@@ -183,20 +176,15 @@ module.exports.addRelationship = function(req, res) {
 };
 
 module.exports.removeRelationship = function(req, res) {
-
-    // var userId = req.body.loggedUser;
-    var userId = "589f98fa82eb9e0aee549ecb";
-    // var userToFollow = req.body.userToFollow;
+    var userId = req.params.userId;
     var followId = req.params.followId;
-
     User.findByIdAndUpdate(userId, {$pull: {"following": followId}})
       .then(function(user) {
-
           User.findByIdAndUpdate(followId, {$pull: {"followers": userId}})
           .then(function(user) {
           res.sendStatus(204);
           })
       }).catch(function(err) {
-        console.log(err);
+        res.sendStatus(500);
       });
 };

@@ -1,0 +1,86 @@
+<div class="row" ng-init="showComments()">
+
+    <div class="col-md-6">
+
+        <div id="messagePanel" class="panel panel-default">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4 id="messageEmail">{{message.userEmail}}</h4>
+                    </div>
+                    <div class="col-md-6">
+                        <p id="postedDate">{{message.createdAt | date: 'medium'}}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="well">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <image id="userImage4" ng-src="{{message.userImage}}" class="img-responsive">
+                        </div>
+                        <div class="col-md-8">
+                            <p>{{message.content}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <div class="row">
+                    <div class="col-md-6">
+                      <a class="btn btn-danger btn-round" ng-show="checkUserForDelete(message.userId)" ng-click="deleteMessage(message._id)"><i class="fa fa-trash-o fa-lg"></i> Delete Post</a>
+                    </div>
+                    <div class="col-md-6">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="commentPanel" class="panel panel-default">
+            <div class="panel-heading">
+                <h4>Post a comment!</h4>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="commentPostForm" class="">
+                            <form ng-submit="postComment(message._id)" name="commentForm" novalidate>
+                                <textarea ng-model="comment" name="comment" rows="8" cols="55" style="overflow:auto;resize:none" required></textarea><br>
+                                <input ng-disabled="commentForm.$invalid" class="btn btn-primary" type="submit" value="Post">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div class="col-md-6">
+
+  <div class="media" ng-repeat="comment in comments | orderBy : createdAt : true">
+    <div class="media-left">
+      <image id="commentImage" ng-src="{{comment.userImage}}" class="media-object">
+      </div>
+      <div class="media-body">
+        <h4 class="media-heading commentHeading">{{comment.userEmail}}</h4>
+        <p class="media-heading  commentHeading">{{comment.createdAt | date: 'medium'}}</p>
+        <div class="well">
+          <p>{{comment.content}}</p>
+        </div>
+        <a class="btn btn-danger btn-round" ng-show="checkUserForDelete(message.userId)" ng-click="delete(comment._id, message._id)"><i class="fa fa-trash-o fa-lg"></i> Delete Comment</a>
+      </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <!-- End Well -->
+</div>

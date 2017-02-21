@@ -28,6 +28,11 @@
                     templateUrl: 'app/components/home/profile.html',
                     controller: 'HomeController'
                 })
+                .state('messageComments', {
+                    url: '/messsages/:id',
+                    templateUrl: 'app/components/messageBoard/messageComments.html',
+                    controller: 'MessageController'
+                })
 
         })
 }());

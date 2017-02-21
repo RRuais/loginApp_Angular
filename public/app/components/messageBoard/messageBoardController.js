@@ -1,6 +1,6 @@
 (function() {
     angular.module('mainApp')
-        .controller('MessageController', ['$scope', '$location', '$cookies', '$rootScope', 'MessageFactory', 'UsersFactory', function($scope, $location, $cookies, $rootScope, mf, uf) {
+        .controller('MessageController', ['$scope', '$location', '$cookies', '$rootScope', 'MessageFactory', 'UsersFactory', '$stateParams', function($scope, $location, $cookies, $rootScope, mf, uf, $stateParams) {
 
             $scope.checkUser = function() {
                 if ($cookies.get('loggedUser')) {
@@ -11,18 +11,17 @@
             };
 
             $scope.postMessage = function() {
-                var user = JSON.parse($cookies.get('loggedUser'));
+                var user = JSON.parse($cookies.get('auth'));
                 var newMessage = {
-                    userId: user.id,
-                    userEmail: user.email,
+                    userId: user.data.id,
+                    userEmail: user.data.email,
                     content: $scope.message,
-                }
+                };
                 mf.postMessage(newMessage, function(message) {
 
                 });
                 $scope.message = '';
                 userMessages();
-                allUsers();
             };
 
             function allMessages() {
@@ -42,109 +41,121 @@
                 allMessages();
             };
 
-
-
             $scope.deleteMessage = function(messageId) {
-                var loggedUser = JSON.parse($cookies.get('loggedUser'))
-                mf.deleteMessage(messageId, loggedUser.id);
+                var loggedUser = JSON.parse($cookies.get('auth'))
+                mf.deleteMessage(messageId, loggedUser.data._id);
                 userMessages();
-                allUsers();
+                $location.url('messageBoard');
             };
 
             $scope.checkUserForDelete = function(userId) {
-                var loggedUser = JSON.parse($cookies.get('loggedUser'));
-                if (loggedUser.id === userId) {
+                var loggedUser = JSON.parse($cookies.get('auth'));
+                if (loggedUser.data.id === userId) {
                   return true;
                 } else {
                   return false;
                 };
             };
 
-            function loggedUser() {
-                return JSON.parse($cookies.get('loggedUser'));
-            };
-
-            $scope.getLoggedUser = function() {
-                $scope.loggedUser = loggedUser();
-            };
-
             function userMessages() {
-                var loggedUser = JSON.parse($cookies.get('loggedUser'))
-                mf.getUserMessages(loggedUser.id, function(messages) {
+                var loggedUser = JSON.parse($cookies.get('auth'))
+                mf.getUserMessages(loggedUser.data.id, function(messages) {
                     messages.data.forEach(function(message) {
                         var id = message.userId;
                         uf.findById(id, function(user) {
                             var userImage = user.data.image;
                             message.userImage = userImage;
-                        })
-                    })
+                        });
+                    });
                     $scope.messages = messages.data;
-                })
+                });
             };
 
             $scope.getUserMessages = function() {
                 userMessages();
             };
 
-//////////// Users on the MessageBoard Functions ////////////////////////
-//////////// Get all users except logged user ///////////////////////////
-
-            function allUsers() {
-                uf.getAllUsers(function(users) {
-                    var currentUser = loggedUser();
-                    console.log(currentUser);
-                    var counter = 0;
-                    for (var i=0; i < users.data.length; i++) {
-                      if (users.data[i]._id === currentUser.id) {
-                          break;
-                      } else {
-                          counter += 1;
-                      };
+            function friendsMessages() {
+                var totalMessages = [];
+                var loggedUser = JSON.parse($cookies.get('auth'));
+                uf.findById(loggedUser.data.id, function(user) {
+                  user.data.following.forEach(function(userId) {
+                    if (userId != null) {
+                      mf.getUserMessages(userId, function(messages) {
+                        messages.data.forEach(function(message) {
+                          var id = message.userId;
+                          uf.findById(id, function(user) {
+                              var userImage = user.data.image;
+                              message.userImage = userImage;
+                          });
+                          totalMessages.push(message)
+                        });
+                      })
                     };
-                    users.data.splice(counter, 1)
-                    $scope.users = users.data;
+                  });
                 });
+                $scope.messages = totalMessages;
             };
 
-            $scope.getAllUsers = function() {
-                allUsers();
+            $scope.getFriendsMessages = function() {
+                friendsMessages();
             };
 
 
+            function showMessageComments() {
+              messageId = $stateParams.id;
+              //Get Message
+              mf.getMessage(messageId, function(message) {
+                console.log(message);
+                uf.findById(message.data.userId, function(user) {
+                  console.log(user);
+                  let currentMessage = message.data;
+                  currentMessage.userImage = user.data.image;
+                  $scope.message = currentMessage;
+                  mf.getComments(messageId, function(comments) {
+                    comments.data.forEach(function(comment) {
+                      uf.findById(comment.userId, function(user) {
+                        comment.userImage = user.data.image;
+                      })
+                    })
+                    $scope.comments = comments.data;
+                  })
+                })
+              })
+            };
 
-/////////////////////////////////// Comments ///////////////////////////////////
-
-            // Show comments div in HTML
-            $scope.comments = false;
             $scope.showComments = function() {
-                if ($scope.comments === false) {
-                    $scope.comments = true;
-                } else {
-                    $scope.comments = false;
-                };
+                showMessageComments();
             };
 
-            // $scope.postComment = function(messageId) {
-            //
-            //     var user = JSON.parse($cookies.get('loggedUser'));
-            //
-            //     var newComment = {
-            //         content: $scope.comment,
-            //         userId: user.id,
-            //         userEmail: user.email,
-            //         messageId: messageId
-            //     };
-            //
-            //     console.log(newComment);
-            //     mf.postComment(newComment, function(comments) {
-            //
-            //     });
+            $scope.postComment = function(mesageId) {
+              let user = JSON.parse($cookies.get('auth'));
+              let comment = {
+                content: $scope.comment,
+                userId: user.data.id,
+                userEmail: user.data.email,
+                messageId: messageId
+              };
+              mf.postComment(comment);
+              showMessageComments()
+              $scope.comment = "";
+            };
 
-                // $scope.message = '';
-                // userMessages();
-                // allUsers();
+            function deleteComment(commentId, messageId) {
+                let user = JSON.parse($cookies.get('auth'));
+                let ids = {
+                  userId: user.data.id,
+                  messageId: messageId,
+                  commentId: commentId
+                };
+                mf.deleteComment(ids);
+            };
 
-            // };
+            $scope.delete = function(commentId, messageId) {
+              deleteComment(commentId, messageId);
+              showMessageComments();
+            };
+
 
         }]); // End Controller
 }()); // End Anonymous Function

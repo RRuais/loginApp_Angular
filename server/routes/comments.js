@@ -4,10 +4,9 @@ var messageController = require('../controllers/message.controller.js')
 var commentController = require('../controllers/comment.controller.js')
 
 
-router.post('/post', commentController.postComment);
-// router.get('/getAllComments', commentController.getAllComments);
-// router.delete('/delete/:id', commentController.deleteComment);
-// router.get('/getUserComments/:id', commentController.getUserComments);
+router.post('/postComment', commentController.postComment);
+router.get('/getComments/:messageId', commentController.getComments);
+router.post('/delete', commentController.deleteComment);
 
 
 module.exports = router;

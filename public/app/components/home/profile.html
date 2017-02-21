@@ -5,10 +5,10 @@
         <!-- Accordian - Update Profile -->
         <div class="panel-group" id="accordian" role="tablist" aria-multiselectible="true">
 
-            <div class="panel-primary">
+            <div class="panel-default">
                 <div class="panel-heading" role="tab" id="heading3">
                     <h4 class="panel-title"></h4>
-                    <a data-target="#userName" role="button" data-toggle="collapse" data-parent="accordian" aria-expanded="false" aria-controls="userProfile">Update your name:<p id="detailsValue">{{userDetails.name}}</p></a>
+                    <a data-target="#userName" role="button" data-toggle="collapse" data-parent="accordian" aria-expanded="false" aria-controls="userProfile">Update your name:<p id="detailsValue">{{user.name}}</p></a>
                 </div>
                 <div class="panel-collapse collapse in" id="userName" role="tabpanel" arialabelledby="heading3">
                     <div class="panel-body">
@@ -16,7 +16,7 @@
                             <div class="col-lg-12">
                                 <form name="updateName" novalidate>
                                     <div class="input-group">
-                                        <input type="text" id="updateName" class="form-control" placeholder="{{userDetails.name}}" name="name" ng-model="name" required>
+                                        <input type="text" id="updateName" class="form-control" placeholder="{{user.name}}" name="name" ng-model="name" required>
                                         <span class="input-group-btn">
                             <button type="submit" ng-disabled="updateName.$invalid" class="btn btn-primary" name="login" value="Update" ng-click="updateUser()">Update</button>
                           </span>
@@ -32,10 +32,10 @@
             </div>
 
 
-            <div class="panel-primary">
+            <div class="panel-default">
                 <div class="panel-heading" role="tab" id="heading4">
                     <h4 class="panel-title"></h4>
-                    <a data-target="#userBd" role="button" data-toggle="collapse" data-parent="accordian" aria-expanded="false" aria-controls="userProfile">Update your Birthday:<p id="detailsValue">{{userDetails.birthday | date: 'MMMM/dd/yyyy'}}</p></a>
+                    <a data-target="#userBd" role="button" data-toggle="collapse" data-parent="accordian" aria-expanded="false" aria-controls="userProfile">Update your Birthday:<p id="detailsValue">{{user.birthday | date: 'MMMM/dd/yyyy'}}</p></a>
                 </div>
                 <div class="panel-collapse collapse in" id="userBd" role="tabpanel" arialabelledby="heading4">
                     <div class="panel-body">
@@ -43,7 +43,7 @@
                             <div class="col-lg-12">
                                 <form name="updateBirthday" novalidate>
                                     <div class="input-group">
-                                        <input type="date" id="updateName" class="form-control" placeholder="{{userDetails.birthday}}" name="birthday" ng-model="birthday" required>
+                                        <input type="date" id="updateName" class="form-control" placeholder="{{user.birthday}}" name="birthday" ng-model="birthday" required>
                                         <span class="input-group-btn">
                             <button type="submit" ng-disabled="updateBirthday.$invalid" class="btn btn-primary" name="login" value="Update" ng-click="updateUser()">Update</button>
                           </span>
@@ -58,7 +58,7 @@
                 </div>
             </div>
 
-            <div class="panel-primary">
+            <div class="panel-default">
                 <div class="panel-heading" role="tab" id="heading5">
                     <h4 class="panel-title"></h4>
                     <a data-target="#userPhoto" role="button" data-toggle="collapse" data-parent="accordian" aria-expanded="false" aria-controls="userProfile">Upload Photo:</p></a>
@@ -67,11 +67,13 @@
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-lg-12">
-                                    <div class="input-group">
-                                        <div class="button" ngf-select ng-model="file" name="file" ngf-pattern="'image/*'" ngf-accept="'image/*'"><image id="userImage" ng-src="{{userDetails.image}}" class="img-responsive"></div>
-                                          <p>Click image to upload</p>
+                                <div class="input-group">
+                                    <div class="button" ngf-select ng-model="file" name="file" ngf-pattern="'image/*'" ngf-accept="'image/*'">
+                                        <image id="userImage" ng-src="{{user.image}}" class="img-responsive">
                                     </div>
-                                    <!-- /input-group -->
+                                    <p id="detailsValue">Click image to upload</p>
+                                </div>
+                                <!-- /input-group -->
                             </div>
                             <!-- /.col-lg-6 -->
                         </div>
@@ -79,7 +81,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
 
         <!-- end panel group -->

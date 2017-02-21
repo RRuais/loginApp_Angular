@@ -1,94 +1,86 @@
 <div class="row" ng-init="getLoggedUser()">
-    <div class="col-md-4" ng-controller="HomeController">
+    <div id="usersList" class="col-md-4" ng-controller="HomeController">
 
-      <ul class="nav nav-tabs">
-          <li><button ng-click="getAllUsersExcept()" type="button" class="btn btn-default">All Users</button></li>
-          <li><button ng-click="findFollowings()" type="button" class="btn btn-default">Users you follow</button></li>
-      </ul>
+        <ul class="nav nav-tabs">
+            <li><button ng-click="getAllUsersExcept()" type="button" class="btn btn-round btn-primary">All Users</button></li>
+            <li><button ng-click="findFollowings()" type="button" class="btn btn-round btn-primary">Friends you follow</button></li>
+        </ul>
 
-            <!-- <div ng-repeat='user in users'>
-                <div class="panel panel-default">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="panel-body">
-                                <ul id="allUsersList">
-                                    <li><h4>{{user.name}}</h4></li>
-                                    <li># of Posts: {{user.messages.length}}</li>
-                                    <li><a ng-show="!user.isFollowed" ng-click="addRelationship(user._id)">Follow</a></li>
-                                    <li><a ng-show="user.isFollowed" ng-click="removeRelationship(user._id)">Unfollow</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <image id="userImage3" ng-src="{{user.image}}" class="img-responsive">
-                        </div>
+        <div id="searchUsersGroup" class="left-inner-addon">
+            <i class="fa fa-search"></i>
+            <input id="searchUsers" class="form-control fa fa-search" name="filterUsers" ng-model="filterUsers" type="text" placeholder="Search Users">
+        </div>
+
+        <ul class="list-group">
+            <li ng-repeat='user in users | filter: filterUsers' class="list-group-item">
+                <div class="row">
+                    <div class="col-md-5">
+                        <h4 class="userDetails">{{user.name}}</h4>
+                    </div>
+                    <div class="col-md-3">
+                        <a class="userDetails" ng-show="!user.isFollowed" ng-click="addRelationship(user._id)">Follow</a>
+                        <a class="userDetails" ng-show="user.isFollowed" ng-click="removeRelationship(user._id)">Unfollow</a>
+                    </div>
+                    <div class="col-md-4">
+                        <image id="userImage3" ng-src="{{user.image}}" class="img-responsive">
                     </div>
                 </div>
-            </div> -->
-
-
-        <table class="table table-hover" id="messageBoardUsers">
-          <thead>
-          </thead>
-          <tbody>
-            <tr ng-repeat='user in users'>
-              <td>{{user.name}}</td>
-              <td><image id="userImage3" ng-src="{{user.image}}" class="img-responsive"></td>
-              <td><a ng-show="!user.isFollowed" ng-click="addRelationship(user._id)">Follow</a></td>
-              <td><a ng-show="user.isFollowed" ng-click="removeRelationship(user._id)">Unfollow</a></td>
-            </tr>
-          </tbody>
-        </table>
-
+            </li>
+        </ul>
 
     </div>
     <!-- End Left Panel -->
-    <div class="col-md-8" ng-init="getUserMessages()">
+    <div class="col-md-7" ng-init="getUserMessages()">
 
-        <div class="panel panel-default">
-            <div id="messagePostForm" class="panel-body">
-                <form ng-submit="postMessage()" name="messageForm" novalidate>
-                    <textarea ng-model="message" name="message" rows="8" cols="54" style="overflow:auto;resize:none" required></textarea><br>
-                    <input ng-disabled="messageForm.$invalid" class="btn btn-primary" type="submit" value="Post">
-                </form>
-            </div>
+        <h2 class='page-header'> Post a new message!</h2>
+
+        <div id="messagePostForm">
+            <form ng-submit="postMessage()" name="messageForm" novalidate>
+                <textarea ng-model="message" name="message" rows="6" cols="64" style="overflow:auto;resize:none" required></textarea><br>
+                <input ng-disabled="messageForm.$invalid" class="btn btn-primary" type="submit" value="Post">
+            </form>
         </div>
 
-        <ul class="nav nav-tabs">
-            <li><button ng-click="getUserMessages()" type="button" class="btn btn-default">Your Messages</button></li>
-            <li><button ng-click="getAllMessages()" type="button" class="btn btn-default">All Messages</button></li>
+        <ul id="navTabs" class="nav nav-tabs">
+            <li><button ng-click="getUserMessages()" type="button" class="btn btn-round btn-primary">Your Posts</button></li>
+            <li><button ng-click="getAllMessages()" type="button" class="btn btn-round btn-primary">All Posts</button></li>
+            <li><button ng-click="getFriendsMessages()" type="button" class="btn btn-round btn-primary">Friends Posts</button></li>
         </ul>
 
-        <div ng-repeat="message in messages | orderBy : createdAt : true">
-            <div id="messagePanel" class="panel panel-default">
-                <image id="userImage2" ng-src="{{message.userImage}}" class="img-responsive">
+        <div id="message" ng-repeat="message in messages | orderBy : createdAt : true">
+            <div class="row">
+                <div class="col-md-3">
+                    <image id="userImage4" ng-src="{{message.userImage}}" class="img-responsive">
+                </div>
+                <div class="col-md-9">
                     <div class="panel-heading">
-                        <p id="messageEmail">{{message.userEmail}}</p>
-                        <p id="postedDate">{{message.createdAt | date: 'medium'}}</p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p id="messageEmail">{{message.userEmail}}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p id="postedDate">{{message.createdAt | date: 'medium'}}</p>
+                            </div>
+                        </div>
                     </div>
                     <div class="panel-body">
                         <div class="well">
                             <p>{{message.content}}</p>
                         </div>
                     </div>
-                    <div class="panel-footer">
-                        <a ng-show="checkUserForDelete(message.userId)" ng-click="deleteMessage(message._id)">Delete Post</a>
-                        <a id="commentsShow" ng-click="showComments()">Show Comments</a>
+                    <div class="row">
+                        <div class="col-md-2">
+                        </div>
+                        <div class="col-md-9">
+                          <a class="btn btn-danger btn-round" id="deletePost" ng-show="checkUserForDelete(message.userId)" ng-click="deleteMessage(message._id)"><i class="fa fa-trash-o fa-lg"></i> Delete Post</a>
+                          <a class="btn btn-primary btn-round" id="commentsShow" ui-sref="messageComments({ id: message._id })"><i class="fa fa-comments" aria-hidden="true"></i> Show Comments</a>
+                        </div>
                     </div>
-            </div>
-
-            <div ng-show="comments" id="commentPostForm" class="panel panel-default">
-                <div class="panel-body">
-                    <form ng-submit="postComment(message._id)" name="commentForm" novalidate>
-                        <textarea ng-model="comment" name="comment" rows="8" cols="54" style="overflow:auto;resize:none" required></textarea><br>
-                        <input ng-disabled="commentForm.$invalid" class="btn btn-primary" type="submit" value="Post">
-                    </form>
                 </div>
             </div>
-
         </div>
-        <!-- End Message Repeat -->
+
     </div>
-    <!-- End col-md-8 -->
+    <!-- End right col -->
 </div>
-<!-- End right panel -->
+<!-- End row -->

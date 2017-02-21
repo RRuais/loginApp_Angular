@@ -3,7 +3,7 @@ angular.module('mainApp')
         var factory = {}
 
         factory.postMessage = function(message, callback) {
-            $http.post('/messages/post', message)
+            $http.post('/api/messages', message)
                 .then(function(message) {
                     console.log(message);
                 }).catch(function(err) {
@@ -12,7 +12,7 @@ angular.module('mainApp')
         };
 
         factory.getAllMessages = function(callback) {
-            $http.get('/messages/getAllMessages')
+            $http.get('/api/messages/getAllMessages')
                 .then(function(messages) {
                     callback(messages);
                 }).catch(function(err) {
@@ -21,15 +21,13 @@ angular.module('mainApp')
         };
 
         factory.deleteMessage = function(messageId, userId) {
-            console.log(messageId);
-            console.log(userId);
             var data = {
                 messageId: messageId,
                 userId: userId
             }
             $http({
                 method: 'DELETE',
-                url: '/messages/delete/' + messageId,
+                url: '/api/messages/delete/' + messageId,
                 data: {
                     userId: userId
                 },
@@ -40,18 +38,46 @@ angular.module('mainApp')
         };
 
         factory.getUserMessages = function(id, callback) {
-            $http.get('/messages/getUserMessages/' + id, id)
+            $http.get('/api/messages/getUserMessages/' + id, id)
                 .then(function(messages) {
                     callback(messages);
                 }).catch(function(err) {
                     console.log(err);
-                })
+                });
+        };
+
+        factory.getMessage = function(messageId, callback) {
+            $http.get(`api/messages/getMessage/${messageId}`)
+              .then(function(message) {
+                callback(message);
+              }).catch(function(err) {
+                callback(err);
+              });
         };
 
 /////////////////////////////////// Comments ///////////////////////////////////
 
-        factory.postComment = function(newComment, callback) {
-          console.log(newComment);
+        factory.postComment = function(comment) {
+          $http.post(`api/comments/postComment`, comment)
+            .then(function(response) {
+              console.log(response);
+            }).catch(function(err) {
+              console.log(err);
+            })
+        };
+
+        factory.getComments = function(messageId, callback) {
+          $http.get(`api/comments/getComments/${messageId}`)
+            .then(function(comments) {
+              callback(comments);
+            }).catch(function(err) {
+              callback(err);
+            })
+        };
+
+        factory.deleteComment = function(ids) {
+          console.log(ids);
+          $http.post(`api/comments/delete`, ids)
         };
 
         return factory;

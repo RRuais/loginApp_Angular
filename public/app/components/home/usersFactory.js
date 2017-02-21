@@ -2,37 +2,28 @@ const BASE_PATH = "/api/users";
 
 angular.module('mainApp')
     .factory('UsersFactory', ['$http', '$location', function($http, $location) {
+
         var factory = {}
 
         factory.register = function(newUser, callback) {
             $http.post(`${BASE_PATH}`, newUser)
                 .then(function(user) {
-
                     callback(user);
                 })
                 .catch((function(err) {
-                  console.error(err);
-                  //display error somehow
                   let errorMessage = err.data.message;
-                  //do something with that
                   callback(null, errorMessage);
                 }))
         };
 
         factory.login = function(user, callback) {
-            $http.get('/users/findByEmail/' + user.email)
-                .then(function(foundEmail) {
-                    if (foundEmail.data) {
-                        $http.post('/users/login', user)
-                            .then(function(response) {
-                                callback(response);
-                            })
-                    } else {
-                        var response = {data: {message: 'Failure'}};
-                        callback(response)
-                    };
-                });
-
+          $http.post(`${BASE_PATH}/login`, user)
+          .then((creds) => {
+            callback(creds);
+          })
+          .catch((err) => {
+            callback(null, err);
+          })
         };
 
         factory.getAllUsers = function(callback) {
@@ -40,17 +31,23 @@ angular.module('mainApp')
                 .then(function(users) {
                     callback(users);
                 }).catch(function(err) {
-                    console.log(err);
+                  callback(err);
                 })
         };
 
         factory.deleteUser = function(id) {
-            $http.delete('/users/delete/' + id, id)
+            $http.delete(`${BASE_PATH}/${id}`, id)
         };
 
 
-        factory.findByEmail = function(email, callback) {
-            $http.get('/users/findByEmail/' + email, email)
+        factory.findByEmail = function(user, callback) {
+            let creds = user.email;
+            $http({
+                method: 'GET',
+                url: `${BASE_PATH}/findByEmail/${creds}`,
+                data: creds,
+                headers: { 'Content-Type': 'application/json; charset=utf-8'},
+            })
                 .then(function(data) {
                   if (data) {
                     callback(data);
@@ -61,15 +58,14 @@ angular.module('mainApp')
         };
 
         factory.update = function(data, callback) {
-
-          $http.post('/users/update', data)
+          $http.post(`${BASE_PATH}/update`, data)
           .then(function(user) {
               callback(user);
           })
         };
 
         factory.findById = function(id, callback) {
-          $http.get('/users/findById/' + id, id)
+          $http.get('/api/users/' + id, id)
               .then(function(data) {
                   callback(data);
               });
@@ -78,11 +74,11 @@ angular.module('mainApp')
 ////////////////// Followers and Following ////////////////////////////////////
 
         factory.addRelationship = function(relationship) {
-            $http.post('/users/addRelationship', relationship);
+            $http.patch('/api/users/following', relationship);
         };
 
         factory.removeRelationship = function(relationship) {
-            $http.post('/users/removeRelationship', relationship);
+            $http.delete('/api/users/following/' + relationship.userToFollow + '/' + relationship.loggedUser);
         };
 
 

@@ -20,7 +20,9 @@ var UserSchema = new Schema({
       type: String,
       default: "/app/assets/images/emptyPhoto.png"
     },
-    messages: [{type: mongoose.Schema.Types.ObjectId, ref: 'Message'}],
+    authToken: {
+      type: String
+    },
     followers: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
     following: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
 });

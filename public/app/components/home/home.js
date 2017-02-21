@@ -1,9 +1,9 @@
 (function() {
     angular.module('mainApp')
-        .controller('HomeController', ['$scope', 'UsersFactory', '$location', '$cookies', '$rootScope', 'Upload', function($scope, uf, $location, $cookies, $rootScope, Upload) {
+        .controller('HomeController', ['$scope', 'UsersFactory', '$location', '$cookies', '$rootScope', 'Upload', '$stateParams', function($scope, uf, $location, $cookies, $rootScope, Upload, $stateParams) {
 
             $scope.checkUser = function() {
-                if ($cookies.get('loggedUser')) {
+                if ($cookies.get('auth')) {
                     return true;
                 } else {
                     return false;
@@ -17,7 +17,6 @@
                 };
                 var newUser = $scope.user;
                 uf.register(newUser, function(user, errMsg) {
-                  console.error(`hae error ${errMsg}`);
                   if(errMsg) {
                     $scope.errors.push(errMsg)
                   }
@@ -25,20 +24,20 @@
                     $location.url('success');
                   }
                 });
-
             }; //End Register Function
 
             $scope.login = function(req, res) {
               if ($scope.user && $scope.user.password) {
-                uf.login($scope.user, function(user) {
-                    if (user.data.message) {
-                        $scope.error = {message: "Email or password incorrect"};
-                    } else {
-                      var loggedUser = JSON.stringify({email: user.data[0].email, id: user.data[0]._id, image: user.data[0].image});
-                      $cookies.put('loggedUser', loggedUser);
-                      loggedUserDetails();
-                      $location.url('messageBoard');
-                    }
+                uf.login($scope.user, function(creds, err) {
+                  if(err) {
+                    $scope.error = err.data.message;
+                  } else {
+                    let user = JSON.stringify(creds);
+                    $cookies.put('auth', user);
+                    getUser();
+                    $scope.user = "";
+                    $location.url('messageBoard');
+                  }
                 });
               } else {
                 $scope.error = {message: "Email or password incorrect"};
@@ -46,11 +45,9 @@
             };
 
             $scope.logout = function() {
-                $cookies.remove('loggedUser');
+                $cookies.remove('auth');
                 $location.url('register');
             };
-
-
 
             $scope.getAllUsers = function() {
                 uf.getAllUsers(function(users) {
@@ -63,9 +60,11 @@
             };
 
             function getUser() {
-              if ($cookies.get('loggedUser')) {
-                $scope.loggedUser = JSON.parse($cookies.get('loggedUser'));
-                return $scope.loggedUser;
+              if ($cookies.get('auth')) {
+                let user = JSON.parse($cookies.get('auth'));
+                uf.findByEmail(user.data, function(user) {
+                  $scope.user = user.data;
+                });
               };
             };
 
@@ -73,37 +72,22 @@
               getUser();
             };
 
-            function loggedUserDetails() {
-              if ($cookies.get('loggedUser')) {
-                var user = JSON.parse($cookies.get('loggedUser'));
-                uf.findByEmail(user.email, function(user) {
-                    $scope.userDetails = user.data;
-                });
-              }
-            };
-
-            loggedUserDetails();
-
-            $scope.getUserDetails = function() {
-                loggedUserDetails();
-            };
-
-
             $scope.updateUser = function() {
-                  if ($scope.name) {
-                    uf.update({name: $scope.name, email: $scope.userDetails.email}, function(data){
-                      var loggedUser = JSON.stringify({email: data.data.email, id: data.data._id});
-                      $cookies.put('loggedUser', loggedUser);
-                      loggedUserDetails();
-                      $scope.name = "";
-                    })
-                  } else if ($scope.birthday) {
-                    uf.update({name: $scope.userDetails.name, email: $scope.userDetails.email, birthday: $scope.birthday}, function(data){
-                      var loggedUser = JSON.stringify({email: data.data.email, id: data.data._id});
-                      $cookies.put('loggedUser', loggedUser);
-                      loggedUserDetails();
-                    })
-                  }
+              if ($scope.name) {
+                uf.update({name: $scope.name, email: $scope.user.email}, function(user){
+                  var loggedUser = JSON.stringify({data: {email: user.data.email, token: user.data.authToken, id: user.data._id}});
+                  $cookies.put('auth', loggedUser);
+                  getUser();
+                  $scope.name = "";
+                })
+              } else if ($scope.birthday) {
+                uf.update({name: $scope.user.name, email: $scope.user.email, birthday: $scope.birthday}, function(user){
+                  var loggedUser = JSON.stringify({data: {email: user.data.email, token: user.data.authToken, id: user.data._id}});
+                  $cookies.put('auth', loggedUser);
+                  getUser();
+                  $scope.birthday = "";
+                })
+              }
             };
 
             //Upload Image
@@ -114,17 +98,15 @@
             });
             $scope.upload = function (file) {
               if (file){
-                var user = getUser()
                 Upload.upload({
-                  url: 'users/profile/editPhoto',
+                  url: 'api/users/profile/editPhoto',
                   method: 'POST',
-                  data: {userId: user.id},
+                  data: {userId: $scope.user._id},
                   file: file
                 }).progress(function(evt){
-                  console.log("firing");
-                  console.log(evt);
-                  loggedUserDetails();
+                  getUser();
                 }).success(function(data){
+
                 }).error(function(error){
                   console.log(error);
                 })
@@ -134,10 +116,9 @@
 //////////////////// Followers and Following //////////////////////////////////
 
             $scope.addRelationship = function(id) {
-              console.log('Add relationship');
-              var loggedUser = JSON.parse($cookies.get('loggedUser'));
+              var loggedUser = JSON.parse($cookies.get('auth'));
               var relationship = {
-                loggedUser: loggedUser.id,
+                loggedUser: loggedUser.data.id,
                 userToFollow: id
               }
               uf.addRelationship(relationship);
@@ -145,10 +126,9 @@
             };
 
             $scope.removeRelationship = function(id) {
-              console.log('removeRelationship');
-              var loggedUser = JSON.parse($cookies.get('loggedUser'));
+              var loggedUser = JSON.parse($cookies.get('auth'));
               var relationship = {
-                loggedUser: loggedUser.id,
+                loggedUser: loggedUser.data.id,
                 userToFollow: id
               }
               uf.removeRelationship(relationship);
@@ -156,8 +136,8 @@
             };
 
             function findFolowingUsers() {
-              var loggedUser = JSON.parse($cookies.get('loggedUser'));
-              uf.findById(loggedUser.id, function(user) {
+              var loggedUser = JSON.parse($cookies.get('auth'));
+              uf.findById(loggedUser.data.id, function(user) {
                 var users = [];
                 user.data.following.forEach(function(userId) {
                   if (userId !== null) {
@@ -171,34 +151,35 @@
               })
             };
 
-
             $scope.findFollowings = function() {
               findFolowingUsers();
             };
 
             function allUsersExcept() {
-              if ($cookies.get('loggedUser')) {
-
+              if ($cookies.get('auth')) {
+                // Getting all users
                 uf.getAllUsers(function(users) {
-                  var currentUser = getUser();
+                  let currentUser = JSON.parse($cookies.get('auth'));
+                  // Splicing out the logged-in user
                   var counter = 0;
                   for (var i=0; i < users.data.length; i++) {
-                    if (users.data[i]._id === currentUser.id) {
+                    if (users.data[i]._id === currentUser.data.id) {
                       break;
                     } else {
                       counter += 1;
                     };
                   };
                   users.data.splice(counter, 1);
+                  // Check the users for following
                   users.data.forEach(function(user){
-                    checkUserFollowing(user._id, function(res) {
-                      if (res === true) {
+                    uf.findById(currentUser.data.id, function(loggedUser) {
+                      if (loggedUser.data.following.includes(user._id)) {
                         user.isFollowed = true;
                       } else {
                         user.isFollowed = false;
                       }
                     })
-                  })
+                  })//End ForEach loop
                   $scope.users = users.data;
                 });
               };
@@ -209,20 +190,6 @@
             };
 
             allUsersExcept();
-
-            function checkUserFollowing(userId, callback) {
-              var user = getUser();
-              uf.findByEmail(user.email, function(user) {
-                  user.data.following.forEach(function(id) {
-                      if (id === userId) {
-                        callback(true);
-                      } else {
-                        callback(false);
-                      };
-                  });
-              });
-            };
-
 
 
         }]); // End Main Controller

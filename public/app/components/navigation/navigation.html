@@ -1,25 +1,25 @@
 <nav id="nav" ng-controller="HomeController" class="navbar navbar-fixed-top navbar-inverse">
     <div class="container-fluid">
         <div class="row">
-            <div class="navbar-header" ng-init='getUserDetails()'>
+            <div class="navbar-header" ng-init='getLoggedUser()'>
                 <form ng-show="!checkUser()" class="navbar-form navbar-left" ng-submit="login()" novalidate>
-                    <div class="form-group">
-                        <ul class="nav navbar-nav">
-                            <li><input type="email" class="navForm form-control" placeholder="Email" name="email" ng-model="user.email"></li>
-                            <li><input type="password" class="navForm form-control" placeholder="Password" name="password" ng-model="user.password"></li>
-                            <li><input type="submit" class="btn btn-primary" name="login" value="Login"></li>
-                            <li><div id="loginError" ng-if="error" class="alert alert-danger ">{{error.message}}</div></li>
-                        </ul>
+                    <div class="form-inline my-2 my-lg-0">
+
+                        <input type="email" class="navForm form-control" placeholder="Email" name="email" ng-model="user.email">
+                            <input type="password" class="navForm form-control" placeholder="Password" name="password" ng-model="user.password">
+                            <input type="submit" class="btn btn-primary btn-outline-success" name="login" value="Login">
+                            <span id="loginError" ng-if="error" class="alert alert-danger ">{{error}}</span>
+
                     </div>
                 </form>
-                <div ng-show="checkUser()"><h3>Welcome: {{userDetails.email}}!</h3><image id="userImage2" ng-src="{{userDetails.image}}" class="img-responsive"></div>
+                <div ng-show="checkUser()"><image id="userImage2" ng-src="{{user.image}}" class="img-responsive"><h3 class="navbar-brand">Welcome: {{user.email}}!</h3></div>
             </div>
 
             <div class="nav">
               <ul class="nav nav-pills pull-right" ng-init="checkUser()">
-                <li ng-show="checkUser()"><a ui-sref="messageBoard">Message Board</a></li>
-                <li ng-show="checkUser()"><a ui-sref="profile">Dashboard</a></li>
-                <li ng-show="checkUser()"><a ng-click="logout()">Logout</a></li>
+                <li ng-show="checkUser()"><a class="btn btn-round btn-primary" ui-sref="messageBoard">Message Board</a></li>
+                <li ng-show="checkUser()"><a class="btn btn-round btn-primary" ui-sref="profile">Dashboard</a></li>
+                <li ng-show="checkUser()"><a class="btn btn-round btn-primary" ng-click="logout()">Logout</a></li>
               </ul>
 
             </div>
