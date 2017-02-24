@@ -49,19 +49,25 @@ module.exports.register = function(req, res) {
 };
 
 function createAdminUser() {
-  var newUser = new User({
-    name: 'admin',
-    email: 'admin@admin.com',
-    password: 'password',
-    isAdmin: true
-  });
-  User.createUser(newUser, function(err, user) {
-      if (err) {
-          console.log(err);
-      } else {
-          console.log("successfullly Created Admin User" + user);
+  _findByEmail('admin@admin.com')
+    .then(function(user) {
+      if(!user){
+        var newUser = new User({
+          name: 'admin',
+          email: 'admin@admin.com',
+          password: 'password',
+          isAdmin: true
+        });
+        User.createUser(newUser, function(err, user) {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log("successfullly Created Admin User" + user);
+          };
+        });
       };
-  });};
+    });
+};
 
 createAdminUser();
 

@@ -19,11 +19,6 @@ var users = require('./server/routes/users');
 var messages = require('./server/routes/messages');
 var comments = require('./server/routes/comments');
 
-// app.use(function (req, res, next) {
-// 	let headers = JSON.stringify(req.headers);
-// 	console.log(`headers: ${headers}`);
-// 	next();
-// });
 
 // Set Static Folder
 app.use(express.static(path.join(__dirname, 'public')));
