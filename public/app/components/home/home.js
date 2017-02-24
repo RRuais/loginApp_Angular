@@ -49,14 +49,23 @@
                 $location.url('register');
             };
 
+            function allUsers() {
+              uf.getAllUsers(function(users) {
+                  $scope.users = users.data;
+              });
+            };
+
             $scope.getAllUsers = function() {
-                uf.getAllUsers(function(users) {
-                    $scope.users = users.data;
-                });
+                allUsers();
+            };
+
+            function removeUser(userId) {
+              uf.deleteUser(userId);
+              allUsers();
             };
 
             $scope.deleteUser = function(userId) {
-                uf.deleteUser(userId);
+                removeUser(userId);
             };
 
             function getUser() {
@@ -105,6 +114,7 @@
                   file: file
                 }).progress(function(evt){
                   getUser();
+                  $location.url('profile');
                 }).success(function(data){
 
                 }).error(function(error){

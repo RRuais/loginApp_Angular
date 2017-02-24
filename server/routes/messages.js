@@ -8,6 +8,8 @@ router.get('/getAllMessages', messageController.getAllMessages);
 router.delete('/delete/:id', messageController.deleteMessage);
 router.get('/getUserMessages/:id', messageController.getUserMessages);
 router.get('/getMessage/:id', messageController.getMessage);
+router.patch('/update', messageController.updateMessage);
+
 
 
 

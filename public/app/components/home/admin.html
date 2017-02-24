@@ -1,0 +1,18 @@
+<div class="row" ng-init="getAllUsers()">
+    <div class="col-md-12">
+        <table class="table table-striped table-hover">
+          <thead>
+            <th>Name</th>
+            <th>Email</th>
+          </thead>
+          <tbody>
+            <tr ng-repeat="user in users">
+              <td>{{user.name}}</td>
+              <td>{{user.email}}</td>
+              <th><image id="userImage2" ng-src="{{user.image}}" class="img-responsive"></th>
+              <th><a class="btn btn-round btn-primary" ng-click="deleteUser(user._id)">Delete</a></th>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+</div>

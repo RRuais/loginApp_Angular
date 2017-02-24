@@ -55,10 +55,31 @@ angular.module('mainApp')
               });
         };
 
+        factory.updateMessage = function(message) {
+          console.log(message);
+          $http.patch(`api/messages/update`, message)
+            .then(function(response) {
+              console.log(response);
+            }).catch(function(err) {
+              console.log(err);
+            })
+        };
+
+
 /////////////////////////////////// Comments ///////////////////////////////////
 
         factory.postComment = function(comment) {
           $http.post(`api/comments/postComment`, comment)
+            .then(function(response) {
+              console.log(response);
+            }).catch(function(err) {
+              console.log(err);
+            })
+        };
+
+        factory.updateComment = function(comment) {
+          console.log(comment);
+          $http.patch(`api/comments/update`, comment)
             .then(function(response) {
               console.log(response);
             }).catch(function(err) {
@@ -75,9 +96,14 @@ angular.module('mainApp')
             })
         };
 
-        factory.deleteComment = function(ids) {
-          console.log(ids);
-          $http.post(`api/comments/delete`, ids)
+        factory.deleteComment = function(commentId) {
+          $http.delete(`api/comments/${commentId}`)
+            .then(function(response) {
+                console.log(response);
+            }).catch(function(err) {
+              console.log(err);
+            })
+
         };
 
         return factory;

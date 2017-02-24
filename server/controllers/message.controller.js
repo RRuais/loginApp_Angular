@@ -54,3 +54,15 @@ module.exports.getMessage = function(req, res) {
             res.status(400).json(err)
         });
 };
+
+module.exports.updateMessage = function(req, res) {
+    console.log(req.body);
+    Message.findByIdAndUpdate(req.body.messageId, req.body)
+        .then(function(result) {
+          console.log(result);
+            res.status(200).json(result)
+        }).catch(function(err) {
+            res.status(500);
+            res.json(err);
+        });
+};

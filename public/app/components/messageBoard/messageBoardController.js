@@ -21,6 +21,18 @@
 
                 });
                 $scope.message = '';
+                $('.modal').modal('hide');
+                userMessages();
+            };
+
+            $scope.updateMessage = function(messageId) {
+                let message = {
+                    messageId: messageId,
+                    content: $scope.message2
+                };
+                mf.updateMessage(message);
+                $scope.message = '';
+                $('.modal').modal('hide');
                 userMessages();
             };
 
@@ -51,9 +63,18 @@
             $scope.checkUserForDelete = function(userId) {
                 var loggedUser = JSON.parse($cookies.get('auth'));
                 if (loggedUser.data.id === userId) {
-                  return true;
+                    return true;
                 } else {
-                  return false;
+                    return false;
+                };
+            };
+
+            $scope.checkUserForDeleteComment = function(userId) {
+                var loggedUser = JSON.parse($cookies.get('auth'));
+                if (loggedUser.data.id === userId) {
+                    return true;
+                } else {
+                    return false;
                 };
             };
 
@@ -79,20 +100,20 @@
                 var totalMessages = [];
                 var loggedUser = JSON.parse($cookies.get('auth'));
                 uf.findById(loggedUser.data.id, function(user) {
-                  user.data.following.forEach(function(userId) {
-                    if (userId != null) {
-                      mf.getUserMessages(userId, function(messages) {
-                        messages.data.forEach(function(message) {
-                          var id = message.userId;
-                          uf.findById(id, function(user) {
-                              var userImage = user.data.image;
-                              message.userImage = userImage;
-                          });
-                          totalMessages.push(message)
-                        });
-                      })
-                    };
-                  });
+                    user.data.following.forEach(function(userId) {
+                        if (userId != null) {
+                            mf.getUserMessages(userId, function(messages) {
+                                messages.data.forEach(function(message) {
+                                    var id = message.userId;
+                                    uf.findById(id, function(user) {
+                                        var userImage = user.data.image;
+                                        message.userImage = userImage;
+                                    });
+                                    totalMessages.push(message)
+                                });
+                            })
+                        };
+                    });
                 });
                 $scope.messages = totalMessages;
             };
@@ -103,25 +124,23 @@
 
 
             function showMessageComments() {
-              messageId = $stateParams.id;
-              //Get Message
-              mf.getMessage(messageId, function(message) {
-                console.log(message);
-                uf.findById(message.data.userId, function(user) {
-                  console.log(user);
-                  let currentMessage = message.data;
-                  currentMessage.userImage = user.data.image;
-                  $scope.message = currentMessage;
-                  mf.getComments(messageId, function(comments) {
-                    comments.data.forEach(function(comment) {
-                      uf.findById(comment.userId, function(user) {
-                        comment.userImage = user.data.image;
-                      })
+                messageId = $stateParams.id;
+                //Get Message
+                mf.getMessage(messageId, function(message) {
+                    uf.findById(message.data.userId, function(user) {
+                        let currentMessage = message.data;
+                        currentMessage.userImage = user.data.image;
+                        $scope.message = currentMessage;
+                        mf.getComments(messageId, function(comments) {
+                            comments.data.forEach(function(comment) {
+                                uf.findById(comment.userId, function(user) {
+                                    comment.userImage = user.data.image;
+                                })
+                            })
+                            $scope.comments = comments.data;
+                        })
                     })
-                    $scope.comments = comments.data;
-                  })
                 })
-              })
             };
 
             $scope.showComments = function() {
@@ -129,32 +148,43 @@
             };
 
             $scope.postComment = function(mesageId) {
-              let user = JSON.parse($cookies.get('auth'));
-              let comment = {
-                content: $scope.comment,
-                userId: user.data.id,
-                userEmail: user.data.email,
-                messageId: messageId
-              };
-              mf.postComment(comment);
-              showMessageComments()
-              $scope.comment = "";
+                let user = JSON.parse($cookies.get('auth'));
+                let comment = {
+                    content: $scope.comment,
+                    userId: user.data.id,
+                    userEmail: user.data.email,
+                    messageId: messageId
+                };
+                mf.postComment(comment);
+                $scope.comment = "";
+                $('.modal').modal('hide');
+                showMessageComments()
             };
 
-            function deleteComment(commentId, messageId) {
-                let user = JSON.parse($cookies.get('auth'));
-                let ids = {
-                  userId: user.data.id,
-                  messageId: messageId,
-                  commentId: commentId
-                };
-                mf.deleteComment(ids);
+            function deleteComment(commentId) {
+                mf.deleteComment(commentId);
             };
 
             $scope.delete = function(commentId, messageId) {
-              deleteComment(commentId, messageId);
-              showMessageComments();
+                deleteComment(commentId, messageId);
+                showMessageComments();
             };
+
+            $scope.updateComment = function(ids) {
+                let user = JSON.parse($cookies.get('auth'));
+                let comment = {
+                    content: $scope.comment2,
+                    userId: user.data.id,
+                    userEmail: user.data.email,
+                    messageId: ids.messageId,
+                    commentId: ids.commentId
+                };
+                mf.updateComment(comment);
+                $scope.comment2 = "";
+                $('.modal').modal('hide');
+                showMessageComments()
+            };
+
 
 
         }]); // End Controller

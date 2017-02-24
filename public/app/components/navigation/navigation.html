@@ -1,7 +1,7 @@
-<nav id="nav" ng-controller="HomeController" class="navbar navbar-fixed-top navbar-inverse">
+<nav id="nav" ng-controller="HomeController" class="navbar navbar-fixed-top navbar-inverse" ng-init='getLoggedUser()'>
     <div class="container-fluid">
         <div class="row">
-            <div class="navbar-header" ng-init='getLoggedUser()'>
+            <div class="navbar-header">
                 <form ng-show="!checkUser()" class="navbar-form navbar-left" ng-submit="login()" novalidate>
                     <div class="form-inline my-2 my-lg-0">
 
@@ -17,9 +17,10 @@
 
             <div class="nav">
               <ul class="nav nav-pills pull-right" ng-init="checkUser()">
-                <li ng-show="checkUser()"><a class="btn btn-round btn-primary" ui-sref="messageBoard">Message Board</a></li>
-                <li ng-show="checkUser()"><a class="btn btn-round btn-primary" ui-sref="profile">Dashboard</a></li>
-                <li ng-show="checkUser()"><a class="btn btn-round btn-primary" ng-click="logout()">Logout</a></li>
+                <li ng-show="checkUser()"><a class="navButtons btn-round btn-primary" ui-sref="messageBoard"><i class="fa fa-commenting-o fa-3x" aria-hidden="true"></i> Messages</a></li>
+                <li ng-show="checkUser()"><a class="navButtons btn-round btn-primary" ui-sref="profile"><i class="fa fa-user fa-3x" aria-hidden="true"></i> Profile</a></li>
+                <li ng-show="checkUser()" ng-if="user.isAdmin"><a class="navButtons btn-round btn-primary" ui-sref="admin"><i class="fa fa-user fa-3x" aria-hidden="true"></i> Admin</a></li>
+                <li ng-show="checkUser()"><a class="navButtons btn-round btn-primary" ng-click="logout()"><i class="fa fa-sign-out fa-3x" aria-hidden="true"></i> Logout</a></li>
               </ul>
 
             </div>

@@ -48,6 +48,24 @@ module.exports.register = function(req, res) {
     });
 };
 
+function createAdminUser() {
+  var newUser = new User({
+    name: 'admin',
+    email: 'admin@admin.com',
+    password: 'password',
+    isAdmin: true
+  });
+  User.createUser(newUser, function(err, user) {
+      if (err) {
+          console.log(err);
+      } else {
+          console.log("successfullly Created Admin User" + user);
+      };
+  });};
+
+createAdminUser();
+
+
 module.exports.login = function(req, res) {
     _findByEmail(req.body.email)
       .then(function(user) {
@@ -58,7 +76,7 @@ module.exports.login = function(req, res) {
             if (isMatch) {
               _generateAuthToken(user)
               .then(function (user){
-                res.status(200).json({email: user.email, token: user.authToken, id: user._id});
+                res.status(200).json({email: user.email, token: user.authToken, id: user._id, isAdmin: user.isAdmin});
               })
             } else {
               console.log("Compare password failed");
@@ -66,7 +84,6 @@ module.exports.login = function(req, res) {
             }
           });// End Compare Password
         } else {
-          console.log("Could not find user");
           res.status(500).json({message: "Email or password incorrect"});
         };
       });
